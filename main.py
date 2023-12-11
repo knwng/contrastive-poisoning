@@ -131,7 +131,7 @@ def parse_option():
     parser.add_argument('--allow_mmt_grad', action='store_true', default=False,
                         help='allow gradients to flow through the momentum encoder to update delta (for MoCov2 and BYOL)')
 
-    parser.add_argument('--sas_subset_indices', type=str)
+    parser.add_argument('--sas_subset_indices', type=str, default=None)
     
     # DDP-related arguments
     parser.add_argument('--local_rank', default=-1, type=int,
@@ -307,14 +307,15 @@ def set_loader(opt, model):
         ]
 
         if opt.dataset == 'cifar10':
-            train_dataset = P_CIFAR10_TwoCropTransform_SAS_Subset(root=opt.data_folder,
-                                                       transform=train_transform,
-                                                       download=True,
-                                                       subset_indices=opt.sas_subset_indices)
-
-            # train_dataset = P_CIFAR10_TwoCropTransform(root=opt.data_folder,
-            #                                            transform=train_transform,
-            #                                            download=True)
+            if opt.sas_subset_indices is None:
+                train_dataset = P_CIFAR10_TwoCropTransform(root=opt.data_folder,
+                                    transform=train_transform,
+                                    download=True)
+            else:
+                train_dataset = P_CIFAR10_TwoCropTransform_SAS_Subset(root=opt.data_folder,
+                                    transform=train_transform,
+                                    download=True,
+                                    subset_indices=opt.sas_subset_indices)
         elif opt.dataset == 'cifar100':
             train_dataset = P_CIFAR100_TwoCropTransform(root=opt.data_folder,
                                                         transform=train_transform,
